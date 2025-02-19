@@ -45,7 +45,8 @@ async function checkAnnouncements(engagement) {
     } else {
       for (const announcement of announcements) {
         if (
-          announcement.publishedAt > engagement.announcements.lastTimeChanged &&
+          new Date(announcement.publishedAt) >
+            new Date(engagement.announcements.lastTimeChanged) &&
           engagement.announcements.enabled
         ) {
           logUpdate(
@@ -120,7 +121,7 @@ async function checkCrowdStream(engagement) {
         ).toISOString();
 
         if (
-          reportDate > engagement.crowdStream.lastTimeChanged &&
+          reportDate > new Date(engagement.crowdStream.lastTimeChanged) &&
           engagement.crowdStream.enabled &&
           report.priority >= engagement.crowdStream.minimumPriorityNumber
         ) {

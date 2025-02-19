@@ -40,7 +40,7 @@
 
 ## Configuration
 
-Configure the `config.json` file:
+Configure a `config.json` file:
 
 ```json
 {
