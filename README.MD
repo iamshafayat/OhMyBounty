@@ -141,4 +141,7 @@ PM2 provides better process management and reliability, making it the recommende
 <img src="./assets/ex2.jpeg" width="300"/>
 
 ### Discord
+> [!NOTE]  
+> See that the colors reflect the priority🫠
+
 <img src="./assets/ex3.png" width="500"/>
