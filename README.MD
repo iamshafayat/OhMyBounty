@@ -135,3 +135,9 @@ To use **PM2**:
 
 PM2 provides better process management and reliability, making it the recommended choice for running **OhMyBounty**.
  
+## Example
+### Announcements
+![ex](./assets/ex1.jpeg)
+
+### CrowdStream
+![ex](./assets/ex2.jpeg)
