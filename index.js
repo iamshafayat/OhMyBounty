@@ -77,8 +77,7 @@ async function checkAnnouncements(engagement) {
             const message = parsedBody.text();
             await sendDiscordMessage(
               `📢 New announcement in ${engagement.name} 📢 `,
-              message,
-              0x00ff00
+              message
             );
           }
         } else {

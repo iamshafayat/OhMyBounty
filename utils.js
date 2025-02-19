@@ -35,7 +35,7 @@ export const sendTelegramMessageWithImage = async (message, imagePath) => {
   });
 };
 
-export const sendDiscordMessage = async (title, message, color = 0x00ff00) => {
+export const sendDiscordMessage = async (title, message, color = 0x8a2be2) => {
   if (!webhookClient) {
     throw Error("Webhook client not defined.");
   }
@@ -52,10 +52,19 @@ export const sendDiscordMessage = async (title, message, color = 0x00ff00) => {
 };
 
 export const sendDiscordReport = async (engagement, report) => {
+  const bugcrowdColors = [
+    null, // Índice 0 (no se usa)
+    0xff0000, // P1 - Red
+    0xff8000, // P2 - Orange
+    0xffff00, // P3 - Yellow
+    0x00ff00, // P4 - Green
+    0x0000ff, // P5 - Blue
+  ];
+
   const embed = new EmbedBuilder()
     .setTitle(`🚨 New report in ${engagement.name} 🚨`)
     .setURL(`https://bugcrowd.com${report.engagement_path}`)
-    .setColor(0xff0000)
+    .setColor(bugcrowdColors[report.priority])
     .setDescription(
       `**${report.title || "~~Redacted~~"}**\n\n` +
         `• **Priority:** ${report.priority}\n` +
@@ -78,7 +87,7 @@ export const sendDiscordReport = async (engagement, report) => {
 
   await webhookClient.send({
     username: "OhMyBounty",
-    avatarURL: "https://imgur.com/8uE8voU",
+    avatarURL: "https://i.imgur.com/8uE8voU.jpeg",
     embeds: [embed],
   });
 };
