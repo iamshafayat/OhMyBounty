@@ -14,10 +14,12 @@
     "@types/node": "^22.13.4"
   },
   "dependencies": {
+    "@types/node-cron": "^3.0.11",
     "axios": "^1.7.9",
+    "cheerio": "^1.0.0",
     "dotenv": "^16.4.7",
     "log-update": "^6.1.0",
-    "picocolors": "^1.1.1",
-    "puppeteer": "^24.2.1"
+    "node-cron": "^3.0.3",
+    "picocolors": "^1.1.1"
   }
 }

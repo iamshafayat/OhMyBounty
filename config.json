@@ -5,20 +5,22 @@
       "engagementCode": "nasa-vdp",
       "enabled": true,
       "platform": "bugcrowd",
-      "changeLog": {
+      "announcements": {
         "enabled": true,
-        "filterBy": ["brief", "targets", "rewards", "others"],
-        "lastTimeChanged": null
+        "lastTimeChanged": "2025-02-19T16:24:01.226Z"
       },
       "crowdStream": {
         "enabled": true,
         "minimumPriorityNumber": "5",
-        "filterBy": ["disclosures", "accepted"],
-        "lastTimeChanged": null
+        "filterBy": [
+          "disclosures",
+          "accepted"
+        ],
+        "lastTimeChanged": "2025-02-19T16:24:02.685Z"
       }
     }
   ],
-  "monitorInterval": 60,
+  "cronInterval": "* * aaaa* * *",
   "notifications": {
     "telegram": true,
     "discord": true
