@@ -126,7 +126,7 @@ async function checkCrowdStream(engagement) {
         if (
           reportDate > lastDateChanged &&
           engagement.crowdStream.enabled &&
-          report.priority >= engagement.crowdStream.minimumPriorityNumber
+          report.priority <= engagement.crowdStream.minimumPriorityNumber
         ) {
           logUpdate(
             pc.green(

@@ -78,7 +78,7 @@ export const sendDiscordReport = async (engagement, report) => {
 
   await webhookClient.send({
     username: "OhMyBounty",
-    avatarURL: "https://i.imgur.com/AfFp7pu.png",
+    avatarURL: "https://imgur.com/8uE8voU",
     embeds: [embed],
   });
 };
