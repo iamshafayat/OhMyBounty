@@ -17,9 +17,11 @@
     "@types/node-cron": "^3.0.11",
     "axios": "^1.7.9",
     "cheerio": "^1.0.0",
+    "discord.js": "^14.18.0",
     "dotenv": "^16.4.7",
     "log-update": "^6.1.0",
     "node-cron": "^3.0.3",
-    "picocolors": "^1.1.1"
+    "picocolors": "^1.1.1",
+    "pm2": "^5.4.3"
   }
 }

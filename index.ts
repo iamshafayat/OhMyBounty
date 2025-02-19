@@ -9,6 +9,8 @@ import path from "path";
 import pc from "picocolors";
 import { exit } from "process";
 import {
+  sendDiscordMessage,
+  sendDiscordReport,
   sendTelegramMessage,
   sendTelegramMessageWithImage,
   wait,
@@ -53,8 +55,9 @@ type Config = {
     discord: boolean;
   };
 };
+
 const data = await fs.readFile(path.join(__dirname, "config.json"), "utf-8");
-let config: Config = JSON.parse(data);
+let config = JSON.parse(data);
 
 async function checkAnnouncements(engagement: Engagement) {
   try {
@@ -83,6 +86,7 @@ async function checkAnnouncements(engagement: Engagement) {
             )
           );
           logUpdate.done();
+
           //Send notification
           if (config.notifications.telegram) {
             //Send telegram notification
@@ -93,7 +97,15 @@ async function checkAnnouncements(engagement: Engagement) {
             await sendTelegramMessage(message);
           }
           if (config.notifications.discord) {
-            //TODO: Send discord notification
+            //Send discord notification
+            logUpdate(pc.yellow(`[+] Sending notification to Discord`));
+            const parsedBody = cheerio.load(announcement.body);
+            const message = parsedBody.text();
+            await sendDiscordMessage(
+              `📢 New announcement in ${engagement.name} 📢 `,
+              message,
+              0x00ff00
+            );
           }
         } else {
           //Announcements come sorted by date, so we can break the loop
@@ -139,7 +151,8 @@ async function checkCrowdStream(engagement: Engagement) {
 
         if (
           reportDate > engagement.crowdStream.lastTimeChanged &&
-          engagement.crowdStream.enabled
+          engagement.crowdStream.enabled &&
+          report.priority >= engagement.crowdStream.minimumPriorityNumber
         ) {
           logUpdate(
             pc.green(
@@ -174,7 +187,8 @@ async function checkCrowdStream(engagement: Engagement) {
             await sendTelegramMessageWithImage(message, report.logo_url);
           }
           if (config.notifications.discord) {
-            //TODO: Send discord notification
+            logUpdate(pc.yellow(`[+] Sending notification to Discord`));
+            await sendDiscordReport(engagement, report);
           }
         }
       }
@@ -233,6 +247,12 @@ async function showNeon() {
 }
 async function main() {
   try {
+    // Read file again to get the latest changes
+    const data = await fs.readFile(
+      path.join(__dirname, "config.json"),
+      "utf-8"
+    );
+    config = JSON.parse(data);
     await readConfig();
     await writeConfigToFile();
     logUpdate.clear();
