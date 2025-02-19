@@ -44,9 +44,12 @@ async function checkAnnouncements(engagement) {
       }
     } else {
       for (const announcement of announcements) {
+        const announcementDate = new Date(announcement.publishedAt);
+        const lastDateChanged = new Date(
+          engagement.announcements.lastTimeChanged
+        );
         if (
-          new Date(announcement.publishedAt) >
-            new Date(engagement.announcements.lastTimeChanged) &&
+          announcementDate > lastDateChanged &&
           engagement.announcements.enabled
         ) {
           logUpdate(
@@ -116,12 +119,12 @@ async function checkCrowdStream(engagement) {
       }
     } else {
       for (const report of crowdStream) {
-        const reportDate = new Date(
-          report.disclosed_at || report.accepted_at
-        ).toISOString();
-
+        const reportDate = new Date(report.disclosed_at || report.accepted_at);
+        const lastDateChanged = new Date(
+          engagement.crowdStream.lastTimeChanged
+        );
         if (
-          reportDate > new Date(engagement.crowdStream.lastTimeChanged) &&
+          reportDate > lastDateChanged &&
           engagement.crowdStream.enabled &&
           report.priority >= engagement.crowdStream.minimumPriorityNumber
         ) {

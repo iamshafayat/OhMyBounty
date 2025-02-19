@@ -7,13 +7,13 @@
       "platform": "bugcrowd",
       "announcements": {
         "enabled": true,
-        "lastTimeChanged": null
+        "lastTimeChanged": "2025-09-24T23:59:59Z"
       },
       "crowdStream": {
         "enabled": true,
         "minimumPriorityNumber": "5",
         "filterBy": ["disclosures", "accepted"],
-        "lastTimeChanged": null
+        "lastTimeChanged": "2025-02-19T19:33:41.153Z"
       }
     }
   ],
