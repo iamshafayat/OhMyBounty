@@ -1,0 +1,26 @@
+{
+  "engagements": [
+    {
+      "name": "NASA VDP",
+      "engagementCode": "nasa-vdp",
+      "enabled": true,
+      "platform": "bugcrowd",
+      "changeLog": {
+        "enabled": true,
+        "filterBy": ["brief", "targets", "rewards", "others"],
+        "lastTimeChanged": null
+      },
+      "crowdStream": {
+        "enabled": true,
+        "minimumPriorityNumber": "5",
+        "filterBy": ["disclosures", "accepted"],
+        "lastTimeChanged": null
+      }
+    }
+  ],
+  "monitorInterval": 60,
+  "notifications": {
+    "telegram": true,
+    "discord": true
+  }
+}
