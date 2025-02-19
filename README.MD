@@ -141,4 +141,4 @@ PM2 provides better process management and reliability, making it the recommende
 <img src="./assets/ex2.jpeg" width="300"/>
 
 ### Discord
-<img src="./assets/ex3.png" width="300"/>
+<img src="./assets/ex3.png" width="500"/>

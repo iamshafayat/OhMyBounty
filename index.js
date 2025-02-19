@@ -14,7 +14,7 @@ import {
   sendTelegramMessage,
   sendTelegramMessageWithImage,
   wait,
-} from "./utils.ts";
+} from "./utils.js";
 
 //Path config
 const __filename = fileURLToPath(import.meta.url);
@@ -26,40 +26,10 @@ const BANNER = `  ____  __   __  ___     ___                 __
 \____/_//_/_/  /_/\_, /____/\___/\_,_/_//_/\__/\_, / 
                  /___/                        /___/  `;
 
-//Types
-type Announcement = {
-  enabled: boolean;
-  lastTimeChanged: string | null;
-};
-type CrowdStream = {
-  enabled: boolean;
-  minimumPriorityNumber: string;
-  filterBy: string[];
-  lastTimeChanged: string | null;
-};
-type Engagement = {
-  name: string;
-  engagementCode: string;
-  enabled: boolean;
-  platform: string;
-  announcements: Announcement;
-  crowdStream: CrowdStream;
-};
-
-type Config = {
-  platform: string[];
-  engagements: Engagement[];
-  cronInterval: string;
-  notifications: {
-    telegram: boolean;
-    discord: boolean;
-  };
-};
-
 const data = await fs.readFile(path.join(__dirname, "config.json"), "utf-8");
 let config = JSON.parse(data);
 
-async function checkAnnouncements(engagement: Engagement) {
+async function checkAnnouncements(engagement) {
   try {
     const url = `https://bugcrowd.com/engagements/${engagement.engagementCode}/announcements.json`;
     const res = await axios.get(url);
@@ -126,7 +96,7 @@ async function checkAnnouncements(engagement: Engagement) {
   }
 }
 
-async function checkCrowdStream(engagement: Engagement) {
+async function checkCrowdStream(engagement) {
   try {
     const url = `https://bugcrowd.com/engagements/${
       engagement.engagementCode

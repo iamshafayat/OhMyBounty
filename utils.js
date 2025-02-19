@@ -4,10 +4,9 @@ const webhookClient = new WebhookClient({
   url: process.env.DISCORD_WEBHOOK_URL || "",
 });
 
-export const wait = (ms: number) =>
-  new Promise((resolve) => setTimeout(resolve, ms));
+export const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-export const sendTelegramMessage = async (message: string) => {
+export const sendTelegramMessage = async (message) => {
   const botToken = process.env.TELEGRAM_BOT_TOKEN;
   const chatId = process.env.TELEGRAM_CHAT_ID;
   if (!botToken || !chatId) {
@@ -21,10 +20,7 @@ export const sendTelegramMessage = async (message: string) => {
   });
 };
 
-export const sendTelegramMessageWithImage = async (
-  message: string,
-  imagePath: string
-) => {
+export const sendTelegramMessageWithImage = async (message, imagePath) => {
   const botToken = process.env.TELEGRAM_BOT_TOKEN;
   const chatId = process.env.TELEGRAM_CHAT_ID;
   if (!botToken || !chatId) {
@@ -39,17 +35,13 @@ export const sendTelegramMessageWithImage = async (
   });
 };
 
-export const sendDiscordMessage = async (
-  title: string,
-  message: string,
-  color?: number
-) => {
+export const sendDiscordMessage = async (title, message, color = 0x00ff00) => {
   if (!webhookClient) {
     throw Error("Webhook client not defined.");
   }
   const embed = new EmbedBuilder()
     .setTitle(title)
-    .setColor(color || 0x00ff00)
+    .setColor(color)
     .setDescription(message);
 
   webhookClient.send({
