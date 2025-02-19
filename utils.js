@@ -46,7 +46,7 @@ export const sendDiscordMessage = async (title, message, color = 0x8a2be2) => {
 
   webhookClient.send({
     username: "OhMyBounty",
-    avatarURL: "https://i.imgur.com/AfFp7pu.png",
+    avatarURL: "https://i.imgur.com/8uE8voU.jpeg",
     embeds: [embed],
   });
 };
