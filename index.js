@@ -34,22 +34,23 @@ async function checkAnnouncements(engagement) {
     const url = `https://bugcrowd.com/engagements/${engagement.engagementCode}/announcements.json`;
     const res = await axios.get(url);
     const announcements = res.data.announcements;
-    if (engagement.announcements.lastTimeChanged === null) {
+    const lastAnnouncementId = engagement.announcements.lastAnnouncementId;
+    if (lastAnnouncementId === null) {
       const engagementToUpdate = config.engagements.find(
         (e) => e.name === engagement.name
       );
       if (engagementToUpdate) {
-        engagementToUpdate.announcements.lastTimeChanged =
-          new Date().toISOString();
+        engagementToUpdate.announcements.lastAnnouncementId =
+          announcements[0].id;
       }
     } else {
       for (const announcement of announcements) {
-        const announcementDate = new Date(announcement.publishedAt);
-        const lastDateChanged = new Date(
-          engagement.announcements.lastTimeChanged
-        );
+        const announcementId = announcement.id;
+        if (announcementId === lastAnnouncementId) {
+          break;
+        }
         if (
-          announcementDate > lastDateChanged &&
+          announcementId !== lastAnnouncementId &&
           engagement.announcements.enabled
         ) {
           logUpdate(
@@ -60,7 +61,6 @@ async function checkAnnouncements(engagement) {
             )
           );
           logUpdate.done();
-
           //Send notification
           if (config.notifications.telegram) {
             //Send telegram notification
@@ -89,8 +89,8 @@ async function checkAnnouncements(engagement) {
         (e) => e.name === engagement.name
       );
       if (engagementToUpdate) {
-        engagementToUpdate.announcements.lastTimeChanged =
-          new Date().toISOString();
+        engagementToUpdate.announcements.lastAnnouncementId =
+          announcements[0].id;
       }
     }
   } catch (err) {
@@ -108,22 +108,22 @@ async function checkCrowdStream(engagement) {
     )}`;
     const res = await axios.get(url);
     const crowdStream = res.data.results;
-    if (engagement.crowdStream.lastTimeChanged === null) {
+    const lastReportId = engagement.crowdStream.lastReportId;
+    if (lastReportId === null) {
       const engagementToUpdate = config.engagements.find(
         (e) => e.name === engagement.name
       );
       if (engagementToUpdate) {
-        engagementToUpdate.crowdStream.lastTimeChanged =
-          new Date().toISOString();
+        engagementToUpdate.crowdStream.lastReportId = crowdStream[0].id;
       }
     } else {
       for (const report of crowdStream) {
-        const reportDate = new Date(report.disclosed_at || report.accepted_at);
-        const lastDateChanged = new Date(
-          engagement.crowdStream.lastTimeChanged
-        );
+        const reportId = report.id;
+        if (reportId === lastReportId) {
+          break;
+        }
         if (
-          reportDate > lastDateChanged &&
+          reportId !== lastReportId &&
           engagement.crowdStream.enabled &&
           report.priority <= engagement.crowdStream.minimumPriorityNumber
         ) {
@@ -169,8 +169,7 @@ async function checkCrowdStream(engagement) {
         (e) => e.name === engagement.name
       );
       if (engagementToUpdate) {
-        engagementToUpdate.crowdStream.lastTimeChanged =
-          new Date().toISOString();
+        engagementToUpdate.crowdStream.lastReportId = crowdStream[0].id;
       }
     }
   } catch (err) {

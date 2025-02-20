@@ -47,13 +47,14 @@ Configure a `config.json` file:
   "engagements": [  // Array of programs to monitor
     {
       "name": "NASA VDP",  // Name of the program (can be any custom name)
-      "engagementCode": "nasa-vdp",  // The engagement code (part of the URL for the program)
+      "engagementCode": "nasa-vdp",  // The engagement code (part of the URL for the program) 
+      // ➡️ https://bugcrowd.com/engagements/nasa-vdp
       "enabled": true,  // Set to true if you want to monitor this program
       "platform": "bugcrowd",  // Platform name, for a future, ignore it
 
       "announcements": {
         "enabled": true,  // Set to true if you want to monitor announcements (like scope changes, etc.)
-        "lastTimeChanged": null  // Leave this as null; it's used internally to track the last update
+        "lastAnnouncementId": null  // Leave this as null; it's used internally to track the last update
       },
 
       "crowdStream": {
@@ -63,7 +64,7 @@ Configure a `config.json` file:
         // disclosures: Just disclosed reports
         // accepted: Just not disclosed reports
         
-        "lastTimeChanged": null  // Leave this as null; it's used internally to track the last update
+        "lastReportId": null  // Leave this as null; it's used internally to track the last update
       }
     }
   ],
