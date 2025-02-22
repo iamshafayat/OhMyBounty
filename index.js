@@ -199,9 +199,10 @@ async function notifySubdomain(subdomain, engagement) {
     let pageResponse;
     try {
       pageResponse = await page.goto(URL, {
-        waitUntil: "networkidle2",
+        waitUntil: ["domcontentloaded", "networkidle2"],
         timeout: 30000,
       });
+      await page.waitForNavigation();
     } catch (err) {
       console.log(pc.red(`[!] Timeout error for ${subdomain}`));
       await browser.close();
