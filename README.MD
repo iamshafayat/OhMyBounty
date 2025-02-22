@@ -1,4 +1,4 @@
-### Updated Overview of OhMyBounty Features
+# OhMyBounty🍩
 
 **OhMyBounty** is a tool designed to help security researchers stay ahead of the curve by monitoring  Bug Bounty programs (for now just Bugcrowd ones). It notifies users about new **announcements** (like scope changes) and reports in **CrowdStream**. Additionally, it helps monitor subdomain discovery by keeping track of newly found subdomains of your favorite tools, alerting you when new subdomains appear that are not yet in their database.
 
@@ -185,13 +185,4 @@ To ensure the tool runs continuously, even if it crashes, use **PM2**:
 ![Discord Example](./assets/ex5.png)
 ---
 
-## Script Overview
-
-This tool uses a set of tasks scheduled with **node-cron**, which runs at intervals specified in `config.json`. Here's a quick breakdown of what happens in the script:
-
-- **checkAnnouncements**: Fetches new announcements from Bugcrowd for the configured engagement.
-- **checkCrowdStream**: Monitors Bugcrowd's CrowdStream for new reports and sends notifications based on their priority.
-- **notifySubdomain**: Checks if a new subdomain is active, optionally taking a screenshot, and sends notifications.
-- **checkSubdomains**: Processes `.txt` files containing subdomains and updates the database if new subdomains are found.
-
-If you wish to customize any part of the tool or add new features, you can modify the code accordingly.
+ 
