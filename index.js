@@ -186,7 +186,7 @@ async function notifySubdomain(subdomain, engagement) {
   const imgPath = path.resolve("screenshots", "screenshot.png");
   // Launch the browser and open a new blank page
   const browser = await puppeteer.launch({
-    headless: false,
+    headless: true,
     executablePath: "/usr/bin/chromium-browser", //Delete this in Windows OS
     args: ["--start-maximized", "--no-sandbox", "--disable-setuid-sandbox"],
   });
