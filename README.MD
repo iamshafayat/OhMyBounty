@@ -179,7 +179,7 @@ To continuously run subdomain discovery tools, schedule them using **UNIX `cron`
 
 #### **Example: Running `subfinder` every 5 minutes**
 ```bash
-*/5 * * * * subfinder -dL targets.txt -silent | sponge /path/to/programmDir
+*/5 * * * * subfinder -dL targets.txt -silent | sponge /path/to/programDir
 ```
 
 #### **Why use `sponge`?**
@@ -188,7 +188,7 @@ To continuously run subdomain discovery tools, schedule them using **UNIX `cron`
 > [!WARNING] 
 > `OhMyBounty (OMB)` **deletes files after processing** to prevent duplicate processing. Ensure your workflow accounts for this.
 
-> [!IMPORTANT] Prevent Notification Overload
+> [!IMPORTANT]
 > If you're starting with an empty database, set storeMode to true in config.json and let it run for a full day. This prevents excessive notifications when new subdomains are found.
 ---
 
@@ -203,6 +203,8 @@ To continuously run subdomain discovery tools, schedule them using **UNIX `cron`
 <img src="./assets/ex3.png" />
 <img src="./assets/ex5.png" />
 
+
+Happy Hacking👨‍💻
 
  
 
