@@ -11,7 +11,7 @@ Here’s a breakdown of the key features:
 - **Customizable Configuration**: Tailor your monitoring preferences for different Bugcrowd programs and subdomain directories through a JSON configuration file.
 - **Screenshots of Active Subdomains**: Optionally takes screenshots of active subdomains and includes them in notifications.
 
-> **Important:**  
+> [!IMPORTANT] s 
 > OhMyBounty will notify you when new subdomains are discovered that are not already in the database. Ensure you allow the tool to run long enough with `storeMode` set to `true` to avoid an overload of notifications when starting with an empty database.
 
 ---
@@ -122,7 +122,7 @@ MYSQL_PASSWORD=
 MYSQL_DATABASE=omb
 ```
 > [!WARNING]  
-> Ensure that the database exists, the tables are made by OMB.
+> Ensure that the database exists, the tables are created by OMB.
 ---
 
 ## Running the Tool
