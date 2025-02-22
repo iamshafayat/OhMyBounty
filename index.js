@@ -3,6 +3,7 @@ import * as cheerio from "cheerio";
 import "dotenv/config";
 import logUpdate from "log-update";
 import mysql from "mysql2/promise";
+import cron from "node-cron";
 import fs from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import path from "path";
