@@ -188,10 +188,11 @@ async function notifySubdomain(subdomain, engagement) {
   const browser = await puppeteer.launch({
     headless: true,
     executablePath: "/usr/bin/chromium-browser", //Delete this in Windows OS
-    args: ["--start-maximized"],
+    args: ["--start-maximized", "--no-sandbox", "--disable-setuid-sandbox"],
   });
   logUpdate(pc.yellow(`[+] Checking `) + pc.cyan(subdomain));
   const page = await browser.newPage();
+  page.setDefaultNavigationTimeout(10 * 60 * 1000); // 10 mins
   const URL = subdomain.includes("https://")
     ? subdomain
     : `https://${subdomain}`;
