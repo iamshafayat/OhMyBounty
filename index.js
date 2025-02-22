@@ -193,6 +193,7 @@ async function notifySubdomain(subdomain, engagement) {
   logUpdate(pc.yellow(`[+] Checking `) + pc.cyan(subdomain));
   const page = await browser.newPage();
   page.setDefaultNavigationTimeout(10 * 60 * 1000); // 10 mins
+  page.setDefaultTimeout(10 * 60 * 1000); // 10 mins
   const URL = subdomain.includes("https://")
     ? subdomain
     : `https://${subdomain}`;
@@ -204,7 +205,7 @@ async function notifySubdomain(subdomain, engagement) {
       });
       await page.waitForNavigation();
     } catch (err) {
-      console.log(pc.red(`[!] Timeout error for ${subdomain}`));
+      console.log(pc.red(`[!] Timeout error for ${subdomain}`), err);
       await browser.close();
       return;
     }
