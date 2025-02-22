@@ -2,15 +2,18 @@ import axios from "axios";
 import * as cheerio from "cheerio";
 import "dotenv/config";
 import logUpdate from "log-update";
-import cron from "node-cron";
+import mysql from "mysql2/promise";
 import fs from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import path from "path";
 import pc from "picocolors";
 import { exit } from "process";
+import puppeteer from "puppeteer";
 import {
   sendDiscordMessage,
   sendDiscordReport,
+  sendDiscordSubdomain,
+  sendTelegramLocalImage,
   sendTelegramMessage,
   sendTelegramMessageWithImage,
   wait,
@@ -141,20 +144,20 @@ async function checkCrowdStream(engagement) {
             logUpdate(pc.yellow(`[+] Sending notification to Telegram`));
             let message = `<b>🚨 New report in <a href="https://bugcrowd.com${report.engagement_path}">${engagement.name}</a> 🚨 </b>\n\n`;
             message += `<b>${report.title || "<s>Redacted</s>"}</b>\n\n`;
-            message += `<i>• Priority:</i> ${report.priority}\n`;
-            message += `<i>• Disclosed:</i> ${
+            message += `•<i> Priority:</i> ${report.priority}\n`;
+            message += `•<i> Disclosed:</i> ${
               report.disclosed || report.accepted_at
             }\n`;
-            message += `<i>• Bounty:</i> ${report.amount || 0} $\n`;
-            message += `<i>• Points:</i> ${report.points || 0}\n`;
-            message += `<i>• Status:</i> ${report.substate}\n`;
+            message += `•<i> Bounty:</i> ${report.amount || 0} $\n`;
+            message += `•<i> Points:</i> ${report.points || 0}\n`;
+            message += `•<i> Status:</i> ${report.substate}\n`;
             message += report.researcher_username
-              ? `<i>• Researcher:</i> <a href="https://bugcrowd.com${report.researcher_profile_path}">${report.researcher_username}</a>\n`
-              : `<i>• Researcher:</i> <s>Private User</s>\n`;
+              ? `•<i> Researcher:</i> <a href="https://bugcrowd.com${report.researcher_profile_path}">${report.researcher_username}</a>\n`
+              : `•<i> Researcher:</i> <s>Private User</s>\n`;
 
-            message += `<i>• Target:</i> ${report.target}\n`;
+            message += `•<i> Target:</i> ${report.target}\n`;
             message += report.disclosed
-              ? `<i>• <a href="https://bugcrowd.com/${report.disclosure_report_url}">Link</a></i> \n`
+              ? `•<i> <a href="https://bugcrowd.com/${report.disclosure_report_url}">Link</a></i> \n`
               : "";
 
             await sendTelegramMessageWithImage(message, report.logo_url);
@@ -177,6 +180,179 @@ async function checkCrowdStream(engagement) {
     exit(1);
   }
 }
+
+async function notifySubdomain(subdomain, engagement) {
+  const imgPath = path.resolve("screenshots", "screenshot.png");
+  // Launch the browser and open a new blank page
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: ["--start-maximized"],
+  });
+  logUpdate(pc.yellow(`[+] Checking `) + pc.cyan(subdomain));
+  const page = await browser.newPage();
+  const URL = subdomain.includes("https://")
+    ? subdomain
+    : `https://${subdomain}`;
+  try {
+    let pageResponse;
+    try {
+      pageResponse = await page.goto(URL, {
+        waitUntil: "domcontentloaded",
+        timeout: 30000,
+      });
+    } catch (err) {
+      console.log(pc.red(`[!] Timeout error for ${subdomain}`));
+      await browser.close();
+      return;
+    }
+    logUpdate(pc.green(`[+] ${subdomain} is up`));
+
+    if (engagement.subdomainMonitor.screenshotEnabled) {
+      await page.screenshot({
+        type: "png",
+        path: path.join("screenshots", "screenshot.png"),
+      });
+    }
+    await browser.close();
+    const headers = pageResponse.headers();
+    if (config.notifications.telegram) {
+      logUpdate(pc.yellow(`[+] Sending notification to Telegram`));
+      //Send telegram notification
+      let message = `<b>🌐 New active subdomain found in <a href="https://bugcrowd.com/engagements/${engagement.engagementCode}">${engagement.name}</a> </b>\n\n`;
+      message += `•<i> <a href="${URL}">${subdomain}</a> </i>\n`;
+      message += `•<i> Status:</i> ${
+        pageResponse.status() + " " + pageResponse.statusText()
+      }\n`;
+      message += `•<i> Response Time:</i> ${
+        pageResponse.timing().receiveHeadersEnd
+      } ms\n`;
+      message += `•<i> Address:</i> ${
+        pageResponse.remoteAddress().ip +
+        ":" +
+        pageResponse.remoteAddress().port
+      } \n`;
+      message += `•<i> Server:</i> ${headers["server"]}\n`;
+      message += `•<i> Content-Type:</i> ${headers["content-type"]}\n`;
+      engagement.subdomainMonitor.screenshotEnabled
+        ? await sendTelegramLocalImage(message, imgPath)
+        : await sendTelegramMessage(message);
+    }
+    if (config.notifications.discord) {
+      logUpdate(pc.yellow(`[+] Sending notification to Discord`));
+      //Send discord notification
+      let messageMd;
+      let title = `**🌐 New active subdomain found in [${engagement.name}](https://bugcrowd.com/engagements/${engagement.engagementCode})**\n`;
+      if (engagement.subdomainMonitor.screenshotEnabled) {
+        messageMd += title;
+      }
+      messageMd = `• *[${subdomain}](${URL})*\n`;
+      messageMd += `• *Status:* ${pageResponse.status()} ${pageResponse.statusText()}\n`;
+      messageMd += `• *Response Time:* ${
+        pageResponse.timing().receiveHeadersEnd
+      } ms\n`;
+      messageMd += `• *Address:* ${pageResponse.remoteAddress().ip}:${
+        pageResponse.remoteAddress().port
+      }\n`;
+      messageMd += `• *Server:* ${headers["server"]}\n`;
+      messageMd += `• *Content-Type:* ${headers["content-type"]}\n`;
+      messageMd =
+        messageMd.length >= 250 ? messageMd.slice(0, 250) + "..." : messageMd;
+      engagement.subdomainMonitor.screenshotEnabled
+        ? await sendDiscordSubdomain(messageMd, imgPath)
+        : await sendDiscordMessage(title, messageMd);
+    }
+  } catch (err) {
+    console.log(err);
+  } finally {
+    //Remove the screenshot
+    await browser.close();
+    try {
+      await fs.unlink(imgPath);
+    } catch (err) {
+      //Passssss
+    }
+  }
+}
+async function processFile(filePath, engagement, connection) {
+  try {
+    const data = await fs.readFile(filePath, "utf-8");
+    const subdomains = data.split("\n").map((subdomain) =>
+      subdomain
+        .trim()
+        .replace(/\r?\n|\r/g, " ")
+        .replace(/^https?:\/\//, "")
+    );
+    for (const subdomain of subdomains) {
+      if (subdomain) {
+        try {
+          await connection.query(
+            `INSERT INTO \`${engagement.engagementCode}\` (subdomain) VALUES (?)`,
+            [subdomain]
+          );
+          logUpdate(pc.green(`[+] New subdomain found: ${subdomain}`));
+          await notifySubdomain(subdomain, engagement);
+        } catch (err) {
+          if (err.code === "ER_DUP_ENTRY") {
+            logUpdate(
+              pc.yellow(
+                `[!] Subdomain ` +
+                  pc.magenta(subdomain) +
+                  pc.yellow(` already exists`)
+              )
+            );
+          } else {
+            throw new Error(`[!] Error inserting subdomain: ${err}`);
+          }
+        }
+      }
+    }
+    //Remove the file
+    await fs.unlink(filePath);
+  } catch (err) {
+    throw new Error(`[!] Error reading file: ${err}`);
+  }
+}
+async function checkSubdomains(engagement) {
+  try {
+    const connection = await mysql.createConnection({
+      host: process.env.MYSQL_HOST || "localhost",
+      port: process.env.MYSQL_PORT || 3306,
+      user: process.env.MYSQL_USER || "root",
+      password: process.env.MYSQL_PASSWORD || "",
+      database: process.env.MYSQL_DATABASE || "omb",
+    });
+    //Create table if not exists
+    const table = `
+    CREATE TABLE IF NOT EXISTS \`${engagement.engagementCode}\` (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    subdomain VARCHAR(255) UNIQUE NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );`;
+    connection.query(table);
+
+    // Read files from the program directory
+    const files = await fs.readdir(
+      engagement.subdomainMonitor.subdomainsDirectory
+    );
+    const txtFiles = files.filter((file) => path.extname(file) == ".txt");
+    logUpdate(
+      pc.yellow(
+        `[i] Reading ${txtFiles.length} subdomains files for ${engagement.name}`
+      )
+    );
+    logUpdate.done();
+    // Process each .txt file
+    for (const file of txtFiles) {
+      await processFile(
+        path.resolve(engagement.subdomainMonitor.subdomainsDirectory, file),
+        engagement,
+        connection
+      );
+    }
+  } catch (err) {
+    throw new Error(`[!] Error checking subdomains: ${err}`);
+  }
+}
 async function readConfig() {
   try {
     for (const engagement of config.engagements) {
@@ -189,6 +365,9 @@ async function readConfig() {
         if (engagement.crowdStream.enabled) {
           //monitor crowdstream
           await checkCrowdStream(engagement);
+        }
+        if (engagement.subdomainMonitor.enabled) {
+          await checkSubdomains(engagement);
         }
       }
     }
@@ -236,28 +415,29 @@ async function main() {
 }
 await showNeon();
 
-const isConfigCronValid = cron.validate(config.cronInterval);
-if (!isConfigCronValid) {
-  console.log(pc.red(`[!] Invalid cron interval, using default value`));
-}
-const cronExpression = isConfigCronValid ? config.cronInterval : "* * * * *";
+main();
+// const isConfigCronValid = cron.validate(config.cronInterval);
+// if (!isConfigCronValid) {
+//   console.log(pc.red(`[!] Invalid cron interval, using default value`));
+// }
+// const cronExpression = isConfigCronValid ? config.cronInterval : "* * * * *";
 
-const task = cron.schedule(
-  cronExpression,
-  () => {
-    main();
-  },
-  {}
-);
+// const task = cron.schedule(
+//   cronExpression,
+//   () => {
+//     main();
+//   },
+//   {}
+// );
 
-console.log(pc.green(`[+] Scheduled task to run every ${cronExpression}`));
+// console.log(pc.green(`[+] Scheduled task to run every ${cronExpression}`));
 
-const monitoringList = config.engagements.filter((e) => e.enabled);
-console.log(
-  pc.yellow(
-    `[+] Programs to monitor: ${pc.cyan(
-      monitoringList.map((e) => e.name).join(", ")
-    )}`
-  )
-);
-task.start();
+// const monitoringList = config.engagements.filter((e) => e.enabled);
+// console.log(
+//   pc.yellow(
+//     `[+] Programs to monitor: ${pc.cyan(
+//       monitoringList.map((e) => e.name).join(", ")
+//     )}`
+//   )
+// );
+// task.start();

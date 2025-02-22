@@ -1,6 +1,7 @@
 import axios from "axios";
-import { EmbedBuilder, WebhookClient } from "discord.js";
-
+import { AttachmentBuilder, EmbedBuilder, WebhookClient } from "discord.js";
+import FormData from "form-data";
+import fs from "fs";
 export const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const sendTelegramMessage = async (message) => {
@@ -31,7 +32,24 @@ export const sendTelegramMessageWithImage = async (message, imagePath) => {
     parse_mode: "html",
   });
 };
-
+export const sendTelegramLocalImage = async (message, imagePath) => {
+  const botToken = process.env.TELEGRAM_BOT_TOKEN;
+  const chatId = process.env.TELEGRAM_CHAT_ID;
+  if (!botToken || !chatId) {
+    throw new Error("Bot token o chat ID no definidos.");
+  }
+  const url = `https://api.telegram.org/bot${botToken}/sendPhoto`;
+  const formData = new FormData();
+  formData.append("chat_id", chatId);
+  formData.append("caption", message);
+  formData.append("parse_mode", "html");
+  formData.append("photo", fs.createReadStream(imagePath));
+  try {
+    await axios.post(url, formData);
+  } catch (error) {
+    console.error("Error sending image", error);
+  }
+};
 export const sendDiscordMessage = async (title, message, color = 0x8a2be2) => {
   try {
     const webhookClient = new WebhookClient({
@@ -99,6 +117,28 @@ export const sendDiscordReport = async (engagement, report) => {
       username: "OhMyBounty",
       avatarURL: "https://i.imgur.com/8uE8voU.jpeg",
       embeds: [embed],
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+export const sendDiscordSubdomain = async (message, localImage) => {
+  try {
+    const webhookClient = new WebhookClient({
+      url: process.env.DISCORD_WEBHOOK_URL || "",
+    });
+
+    const attachment = new AttachmentBuilder(
+      fs.readFileSync(localImage),
+      "subdomains.png"
+    );
+    webhookClient.send({
+      username: "OhMyBounty",
+      avatarURL: "https://i.imgur.com/8uE8voU.jpeg",
+      content: message,
+
+      files: [attachment],
     });
   } catch (e) {
     console.log(e);
