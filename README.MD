@@ -184,7 +184,7 @@ To ensure the tool runs continuously, even if it crashes, use **PM2**:
 ### Telegram Examples
 <img src="./assets/ex1.png" />
 <img src="./assets/ex2.png" />
-<img src="./assets/ex4.png" width="300"/>
+<img src="./assets/ex4.png" />
 
 ### Discord Examples
 
