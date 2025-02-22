@@ -25,26 +25,38 @@ Here’s a breakdown of the key features:
 
 ### Steps
 
-1. Clone the repository:
+#### 1. Clone the repository:
 
-    ```bash
-    git clone https://github.com/kapeka0/OhMyBounty.git
-    cd OhMyBounty
-    ```
+```bash
+git clone https://github.com/kapeka0/OhMyBounty.git
+cd OhMyBounty
+```
 
-2. Install dependencies:
+#### 2. Linux/RaspberryOS
 
-    Using **npm**:
+Due to some errors executing Puppeteer on Unix OS, follow this guide to avoid issues.  
+Execute the following commands:
 
-    ```bash
-    npm install
-    ```
+```bash
+cd ./OhMyBounty
+sudo apt install chromium-browser chromium-codecs-ffmpeg
+sudo apt-get install npm
+npm install puppeteer-core@v1.11.0
+npm install
+```
 
-    Or using **pnpm**:
+#### 3. Windows
 
-    ```bash
-    pnpm install
-    ```
+```bash
+cd ./OhMyBounty
+npm install
+```
+
+ Delete the following line from `index.js`:
+  ```javascript
+  executablePath: "/usr/bin/chromium-browser", // Delete this in Windows OS.
+  ```
+This line is included to avoid errors in Unix systems.
 
 ---
 

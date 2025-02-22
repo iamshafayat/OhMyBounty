@@ -187,6 +187,7 @@ async function notifySubdomain(subdomain, engagement) {
   // Launch the browser and open a new blank page
   const browser = await puppeteer.launch({
     headless: true,
+    executablePath: "/usr/bin/chromium-browser", //Delete this in Windows OS
     args: ["--start-maximized"],
   });
   logUpdate(pc.yellow(`[+] Checking `) + pc.cyan(subdomain));
