@@ -1,6 +1,7 @@
 # OhMyBounty🍩
 
 **OhMyBounty** is a tool designed to help security researchers stay ahead of the curve by monitoring  Bug Bounty programs (for now just Bugcrowd ones). It notifies users about new **announcements** (like scope changes) and reports in **CrowdStream**. Additionally, it helps monitor subdomain discovery by keeping track of newly found subdomains of your favorite tools, alerting you when new subdomains appear that are not yet in their database.
+![alt text](image.png)
 
 Here’s a breakdown of the key features:
 
