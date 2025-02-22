@@ -13,14 +13,7 @@ Here’s a breakdown of the key features:
 - **Customizable Configuration**: Tailor your monitoring preferences for different Bugcrowd programs and subdomain directories through a JSON configuration file.
 - **Screenshots of Active Subdomains**: Optionally takes screenshots of active subdomains and includes them in notifications.
 
-> [!IMPORTANT]
-> OhMyBounty will notify you when new subdomains are discovered that are not already in the database. Ensure you allow the tool to run long enough with `storeMode` set to `true` to avoid an overload of notifications when starting with an empty database.
 
-> [!WARNING]
-> OhMyBounty will delete the files after processing them to avoid processing the same files.
-
-![alt text](diagram.png)
----
 
 ## Installation
 
@@ -135,64 +128,83 @@ MYSQL_DATABASE=omb
 > Ensure that the database exists, the tables are created by OMB.
 ---
 
-## Running the Tool
+### **Running the Tool**
 
-### Running with Node.js (No Background Process Management)
+#### **Running with Node.js (Without Background Process Management)**
 
-To start the tool with **Node.js**, use the following command:
+To start the tool manually using **Node.js**, run:
 
 ```bash
 node index.js
 ```
 
-For background execution (e.g., on a server), use `nohup`:
+For background execution (e.g., on a server), use `nohup` to keep it running after logout:
 
 ```bash
 nohup node index.js > /dev/null 2>&1 &
 ```
 
-### Running with PM2 (Recommended)
+---
 
-To ensure the tool runs continuously, even if it crashes, use **PM2**:
+#### **Running with PM2 (Recommended)**
 
-1. Install PM2 globally:
+To ensure the tool runs continuously and restarts automatically if it crashes, use **PM2**.
 
-    ```bash
-    sudo npm install pm2@latest -g
-    ```
+##### **1. Install PM2 globally**
+```bash
+sudo npm install pm2@latest -g
+```
 
-2. Start the script with PM2:
+##### **2. Start the script with PM2**
+```bash
+pm2 start index.js
+```
 
-    ```bash
-    pm2 start index.js
-    ```
+### **3. Enable automatic restart on system reboot**
+```bash
+pm2 save
+pm2 startup
+```
 
-3. To have PM2 restart the script automatically on system reboot:
-
-    ```bash
-    pm2 save
-    pm2 startup
-    ```
-4. Auto rotate logs just with one command:
-
-    ```bash
-    pm2 install pm2-logrotate
-    ```
+### **4. Enable automatic log rotation**
+```bash
+pm2 install pm2-logrotate
+```
 
 ---
 
-## Example Notifications
+#### **Running Subdomain Finder Tools with `cron` (Recommended Approach)**
 
-### Telegram Examples
+To continuously run subdomain discovery tools, schedule them using **UNIX `cron` jobs**.
+
+##### **Example: Running `subfinder` every 5 minutes**
+```bash
+*/5 * * * * subfinder -dL targets.txt -silent | sponge /path/to/programmDir
+```
+
+### **Why use `sponge`?**
+`OMB` processes files based on the cron interval set in `config.json`. If a tool is still writing to a file when `OMB` processes it, there is a risk of data loss. Using `sponge` ensures `STDIN` is fully received before writing the output.
+
+> [!WARNING] 
+> `OhMyBounty (OMB)` **deletes files after processing** to prevent duplicate processing. Ensure your workflow accounts for this.
+
+> [!IMPORTANT] Prevent Notification Overload
+>If you're starting with an empty database, set storeMode to true in config.json and let it run for a full day. This prevents excessive notifications when new subdomains are found.
+---
+
+## **Example Notifications**
+
+### **Telegram Notifications**
 <img src="./assets/ex1.png" />
 <img src="./assets/ex2.png" />
 <img src="./assets/ex4.png" />
 
-### Discord Examples
-
+### **Discord Notifications**
 <img src="./assets/ex3.png" />
-
 <img src="./assets/ex5.png" />
+
+
+ 
 
  
 
