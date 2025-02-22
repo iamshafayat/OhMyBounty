@@ -204,7 +204,7 @@ To continuously run subdomain discovery tools, schedule them using **UNIX `cron`
 <img src="./assets/ex5.png" />
 
 
-Happy Hacking👨‍💻
+<center> Happy Hacking👨‍💻</center>
 
  
 
