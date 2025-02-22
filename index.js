@@ -199,7 +199,7 @@ async function notifySubdomain(subdomain, engagement) {
     let pageResponse;
     try {
       pageResponse = await page.goto(URL, {
-        waitUntil: "domcontentloaded",
+        waitUntil: "networkidle2",
         timeout: 30000,
       });
     } catch (err) {
