@@ -290,7 +290,11 @@ async function processFile(filePath, engagement, connection) {
             [subdomain]
           );
           logUpdate(pc.green(`[+] New subdomain found: ${subdomain}`));
-          await notifySubdomain(subdomain, engagement);
+          if (!engagement.subdomainMonitor.storeMode) {
+            await notifySubdomain(subdomain, engagement);
+          } else {
+            logUpdate(pc.yellow(`[+] Storing new domain: ${subdomain}`));
+          }
         } catch (err) {
           if (err.code === "ER_DUP_ENTRY") {
             logUpdate(
@@ -415,29 +419,28 @@ async function main() {
 }
 await showNeon();
 
-main();
-// const isConfigCronValid = cron.validate(config.cronInterval);
-// if (!isConfigCronValid) {
-//   console.log(pc.red(`[!] Invalid cron interval, using default value`));
-// }
-// const cronExpression = isConfigCronValid ? config.cronInterval : "* * * * *";
+const isConfigCronValid = cron.validate(config.cronInterval);
+if (!isConfigCronValid) {
+  console.log(pc.red(`[!] Invalid cron interval, using default value`));
+}
+const cronExpression = isConfigCronValid ? config.cronInterval : "* * * * *";
 
-// const task = cron.schedule(
-//   cronExpression,
-//   () => {
-//     main();
-//   },
-//   {}
-// );
+const task = cron.schedule(
+  cronExpression,
+  () => {
+    main();
+  },
+  {}
+);
 
-// console.log(pc.green(`[+] Scheduled task to run every ${cronExpression}`));
+console.log(pc.green(`[+] Scheduled task to run every ${cronExpression}`));
 
-// const monitoringList = config.engagements.filter((e) => e.enabled);
-// console.log(
-//   pc.yellow(
-//     `[+] Programs to monitor: ${pc.cyan(
-//       monitoringList.map((e) => e.name).join(", ")
-//     )}`
-//   )
-// );
-// task.start();
+const monitoringList = config.engagements.filter((e) => e.enabled);
+console.log(
+  pc.yellow(
+    `[+] Programs to monitor: ${pc.cyan(
+      monitoringList.map((e) => e.name).join(", ")
+    )}`
+  )
+);
+task.start();
