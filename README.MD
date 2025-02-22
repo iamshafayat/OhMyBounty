@@ -15,6 +15,9 @@ Here’s a breakdown of the key features:
 > [!IMPORTANT]
 > OhMyBounty will notify you when new subdomains are discovered that are not already in the database. Ensure you allow the tool to run long enough with `storeMode` set to `true` to avoid an overload of notifications when starting with an empty database.
 
+> [!WARNING]
+> OhMyBounty will delete the files after processing them to avoid processing the same files.
+
 ---
 
 ## Installation
