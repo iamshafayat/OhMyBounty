@@ -216,6 +216,14 @@ async function notifySubdomain(subdomain, engagement) {
     }
     await browser.close();
     const headers = pageResponse.headers();
+    if (engagement.subdomainMonitor.hideCodes.includes(pageResponse.status())) {
+      logUpdate(
+        pc.return(
+          `[!] Status code ${pageResponse.status()} is in the hide list`
+        )
+      );
+      return;
+    }
     if (config.notifications.telegram) {
       logUpdate(pc.yellow(`[+] Sending notification to Telegram`));
       //Send telegram notification

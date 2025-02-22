@@ -85,9 +85,13 @@ Configure your `config.json` file to specify which Bugcrowd programs and feature
         "subdomainMonitor": { 
         "enabled": true, // Set to true if you want to monitor for output subdomains.txt files
 
+        "storeMode": true, // Just store subdomains in DB (for new runing with empty DB)
+
         "subdomainsDirectory": "/home/user/kpk0/bb/nasa-vdp/scans", // The dir where your tools will output the .txt files, NOT recursively, just one level
 
-        "screenshotEnabled": true // Getting web preview image on messages or not
+        "screenshotEnabled": true, // Getting web preview image on messages or not,
+        
+        "hideCodes": [404, 403, 500] // Blacklist status codes
       }
     }
   ],
