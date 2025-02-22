@@ -1,3 +1,4 @@
+<a href="https://www.buymeacoffee.com/kapeka" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 174px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a>
 # OhMyBounty🍩
 
 **OhMyBounty** is a tool designed to help security researchers stay ahead of the curve by monitoring  Bug Bounty programs (for now just Bugcrowd ones). It notifies users about new **announcements** (like scope changes) and reports in **CrowdStream**. Additionally, it helps monitor subdomain discovery by keeping track of newly found subdomains of your favorite tools, alerting you when new subdomains appear that are not yet in their database.
