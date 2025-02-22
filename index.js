@@ -201,7 +201,6 @@ async function notifySubdomain(subdomain, engagement) {
     try {
       pageResponse = await page.goto(URL, {
         waitUntil: ["domcontentloaded", "networkidle2"],
-        timeout: 30000,
       });
       await page.waitForNavigation();
     } catch (err) {
