@@ -186,13 +186,12 @@ async function notifySubdomain(subdomain, engagement) {
   const imgPath = path.resolve("screenshots", "screenshot.png");
   // Launch the browser and open a new blank page
   const browser = await puppeteer.launch({
-    headless: true,
-    executablePath: "/usr/bin/chromium-browser", //Delete this in Windows OS
+    headless: false,
+    // executablePath: "/usr/bin/chromium-browser", //Delete this in Windows OS
     args: ["--start-maximized", "--no-sandbox", "--disable-setuid-sandbox"],
   });
   logUpdate(pc.yellow(`[+] Checking `) + pc.cyan(subdomain));
   const page = await browser.newPage();
-  page.setDefaultNavigationTimeout(10 * 60 * 1000); // 10 mins
   page.setDefaultTimeout(10 * 60 * 1000); // 10 mins
   const URL = subdomain.includes("https://")
     ? subdomain
@@ -201,9 +200,8 @@ async function notifySubdomain(subdomain, engagement) {
     let pageResponse;
     try {
       pageResponse = await page.goto(URL, {
-        waitUntil: ["domcontentloaded", "networkidle2"],
+        waitUntil: "domcontentloaded",
       });
-      await page.waitForNavigation();
     } catch (err) {
       console.log(pc.red(`[!] Timeout error for ${subdomain}`), err);
       await browser.close();
