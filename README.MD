@@ -182,13 +182,13 @@ To ensure the tool runs continuously, even if it crashes, use **PM2**:
 ## Example Notifications
 
 ### Telegram Examples
-<img src="./assets/ex1.jpeg" width="300"/>
-<img src="./assets/ex2.jpeg" width="300"/>
+<img src="./assets/ex1.png" />
+<img src="./assets/ex2.png" />
 <img src="./assets/ex4.png" width="300"/>
 
 ### Discord Examples
 
-<img src="./assets/ex3.png" width="300"/>
+<img src="./assets/ex3.png" />
 
 ![Discord Example](./assets/ex5.png)
 ---
