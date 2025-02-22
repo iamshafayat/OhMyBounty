@@ -128,9 +128,9 @@ MYSQL_DATABASE=omb
 > Ensure that the database exists, the tables are created by OMB.
 ---
 
-### **Running the Tool**
+## **Running the Tool**
 
-#### **Running with Node.js (Without Background Process Management)**
+### **Running with Node.js (Without Background Process Management)**
 
 To start the tool manually using **Node.js**, run:
 
@@ -146,50 +146,50 @@ nohup node index.js > /dev/null 2>&1 &
 
 ---
 
-#### **Running with PM2 (Recommended)**
+### **Running with PM2 (Recommended)**
 
 To ensure the tool runs continuously and restarts automatically if it crashes, use **PM2**.
 
-##### **1. Install PM2 globally**
+#### **1. Install PM2 globally**
 ```bash
 sudo npm install pm2@latest -g
 ```
 
-##### **2. Start the script with PM2**
+#### **2. Start the script with PM2**
 ```bash
 pm2 start index.js
 ```
 
-### **3. Enable automatic restart on system reboot**
+#### **3. Enable automatic restart on system reboot**
 ```bash
 pm2 save
 pm2 startup
 ```
 
-### **4. Enable automatic log rotation**
+#### **4. Enable automatic log rotation**
 ```bash
 pm2 install pm2-logrotate
 ```
 
 ---
 
-#### **Running Subdomain Finder Tools with `cron` (Recommended Approach)**
+### **Running Subdomain Finder Tools with `cron` (Recommended Approach)**
 
 To continuously run subdomain discovery tools, schedule them using **UNIX `cron` jobs**.
 
-##### **Example: Running `subfinder` every 5 minutes**
+#### **Example: Running `subfinder` every 5 minutes**
 ```bash
 */5 * * * * subfinder -dL targets.txt -silent | sponge /path/to/programmDir
 ```
 
-### **Why use `sponge`?**
+#### **Why use `sponge`?**
 `OMB` processes files based on the cron interval set in `config.json`. If a tool is still writing to a file when `OMB` processes it, there is a risk of data loss. Using `sponge` ensures `STDIN` is fully received before writing the output.
 
 > [!WARNING] 
 > `OhMyBounty (OMB)` **deletes files after processing** to prevent duplicate processing. Ensure your workflow accounts for this.
 
 > [!IMPORTANT] Prevent Notification Overload
->If you're starting with an empty database, set storeMode to true in config.json and let it run for a full day. This prevents excessive notifications when new subdomains are found.
+> If you're starting with an empty database, set storeMode to true in config.json and let it run for a full day. This prevents excessive notifications when new subdomains are found.
 ---
 
 ## **Example Notifications**
