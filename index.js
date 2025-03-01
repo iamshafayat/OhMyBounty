@@ -295,28 +295,25 @@ async function processFile(filePath, engagement, connection) {
     for (const subdomain of subdomains) {
       if (subdomain) {
         try {
-          await connection.query(
-            `INSERT INTO \`${engagement.engagementCode}\` (subdomain) VALUES (?)`,
+          const [rows] = await connection.query(
+            `SELECT * FROM \`${engagement.engagementCode}\` WHERE subdomain = ?`,
             [subdomain]
           );
-          logUpdate(pc.green(`[+] New subdomain found: ${subdomain}`));
-          if (!engagement.subdomainMonitor.storeMode) {
-            await notifySubdomain(subdomain, engagement);
-          } else {
-            logUpdate(pc.yellow(`[+] Storing new domain: ${subdomain}`));
+          if (rows.length === 0) {
+            logUpdate(pc.green(`[+] New subdomain found: ${subdomain}`));
+            if (!engagement.subdomainMonitor.storeMode) {
+              await notifySubdomain(subdomain, engagement);
+            } else {
+              logUpdate(pc.yellow(`[+] Storing new domain: ${subdomain}`));
+            }
+
+            await connection.query(
+              `INSERT INTO \`${engagement.engagementCode}\` (subdomain) VALUES (?)`,
+              [subdomain]
+            );
           }
         } catch (err) {
-          if (err.code === "ER_DUP_ENTRY") {
-            logUpdate(
-              pc.yellow(
-                `[!] Subdomain ` +
-                  pc.magenta(subdomain) +
-                  pc.yellow(` already exists`)
-              )
-            );
-          } else {
-            throw new Error(`[!] Error inserting subdomain: ${err}`);
-          }
+          console.log(err);
         }
       }
     }
