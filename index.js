@@ -192,7 +192,7 @@ async function notifySubdomain(subdomain, engagement) {
   let page;
   try {
     page = await browser.newPage();
-    page.setDefaultTimeout(10 * 60 * 1000); // 10 mins
+    page.setDefaultTimeout(5 * 60 * 1000); // 5 mins
     let pageResponse;
     try {
       pageResponse = await page.goto(URL, {
