@@ -277,7 +277,7 @@ async function processFile(filePath, engagement, connection) {
   let browser;
   try {
     browser = await puppeteer.launch({
-      headless: false,
+      headless: true,
       executablePath: "/usr/bin/chromium-browser", //Delete this in Windows OS
       args: ["--start-maximized", "--no-sandbox", "--no-zygote"],
     });
