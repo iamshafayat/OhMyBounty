@@ -182,23 +182,9 @@ async function checkCrowdStream(engagement) {
   }
 }
 
-async function notifySubdomain(subdomain, engagement) {
+async function notifySubdomain(subdomain, engagement, page) {
   const imgPath = path.resolve("screenshots", "screenshot.png");
-  // Launch the browser and open a new blank page
-  const browser = await puppeteer.launch({
-    headless: true,
-    executablePath: "/usr/bin/chromium-browser", //Delete this in Windows OS
-    args: [
-      "--start-maximized",
-      "--no-sandbox",
-      "--disable-setuid-sandbox",
-      "--single-process",
-      "--no-zygote",
-    ],
-  });
   logUpdate(pc.yellow(`[+] Checking `) + pc.cyan(subdomain));
-  const page = await browser.newPage();
-  page.setDefaultTimeout(10 * 60 * 1000); // 10 mins
   const URL = subdomain.includes("https://")
     ? subdomain
     : `https://${subdomain}`;
@@ -210,8 +196,7 @@ async function notifySubdomain(subdomain, engagement) {
       });
     } catch (err) {
       //Timeout, subdomain is down
-      await page.close();
-      await browser.close();
+
       return;
     }
     logUpdate(pc.green(`[+] ${subdomain} is up`));
@@ -222,7 +207,6 @@ async function notifySubdomain(subdomain, engagement) {
         path: path.join("screenshots", "screenshot.png"),
       });
     }
-    await browser.close();
     const headers = pageResponse.headers();
     if (engagement.subdomainMonitor.hideCodes.includes(pageResponse.status())) {
       logUpdate(
@@ -281,8 +265,6 @@ async function notifySubdomain(subdomain, engagement) {
   } catch (err) {
     console.log(err);
   } finally {
-    await page.close();
-    await browser.close();
     //Remove the image
     try {
       await fs.unlink(imgPath);
@@ -292,6 +274,17 @@ async function notifySubdomain(subdomain, engagement) {
   }
 }
 async function processFile(filePath, engagement, connection) {
+  let browser;
+  try {
+    browser = await puppeteer.launch({
+      headless: false,
+      executablePath: "/usr/bin/chromium-browser", //Delete this in Windows OS
+      args: ["--start-maximized", "--no-sandbox", "--no-zygote"],
+    });
+  } catch (err) {
+    console.log(err);
+    return;
+  }
   try {
     const data = await fs.readFile(filePath, "utf-8");
     const subdomains = data.split("\n").map((subdomain) =>
@@ -300,6 +293,8 @@ async function processFile(filePath, engagement, connection) {
         .replace(/\r?\n|\r/g, " ")
         .replace(/^https?:\/\//, "")
     );
+    const page = await browser.newPage();
+    page.setDefaultTimeout(10 * 60 * 1000); // 10 mins
     for (const subdomain of subdomains) {
       if (subdomain) {
         try {
@@ -311,7 +306,7 @@ async function processFile(filePath, engagement, connection) {
             logUpdate(pc.green(`[+] New subdomain found: ${subdomain}`));
             if (!engagement.subdomainMonitor.storeMode) {
               try {
-                await notifySubdomain(subdomain, engagement);
+                await notifySubdomain(subdomain, engagement, page);
               } catch (err) {
                 //Timeout error, skip
               }
@@ -333,6 +328,8 @@ async function processFile(filePath, engagement, connection) {
     await fs.unlink(filePath);
   } catch (err) {
     throw new Error(`[!] Error reading file: ${err}`);
+  } finally {
+    await browser.close();
   }
 }
 async function checkSubdomains(engagement) {
@@ -374,6 +371,8 @@ async function checkSubdomains(engagement) {
     }
   } catch (err) {
     throw new Error(`[!] Error checking subdomains: ${err}`);
+  } finally {
+    await connection.end();
   }
 }
 async function readConfig() {
