@@ -32,6 +32,7 @@ const BANNER = `  ____  __   __  ___     ___                 __
 
 const data = await fs.readFile(path.join(__dirname, "config.json"), "utf-8");
 let config = JSON.parse(data);
+var browser;
 
 async function checkAnnouncements(engagement) {
   try {
@@ -182,25 +183,27 @@ async function checkCrowdStream(engagement) {
   }
 }
 
-async function notifySubdomain(subdomain, engagement, page) {
+async function notifySubdomain(subdomain, engagement) {
   const imgPath = path.resolve("screenshots", "screenshot.png");
   logUpdate(pc.yellow(`[+] Checking `) + pc.cyan(subdomain));
   const URL = subdomain.includes("https://")
     ? subdomain
     : `https://${subdomain}`;
+  let page;
   try {
+    page = await browser.newPage();
+    page.setDefaultTimeout(10 * 60 * 1000); // 10 mins
     let pageResponse;
     try {
       pageResponse = await page.goto(URL, {
         waitUntil: "networkidle2",
       });
     } catch (err) {
-      //Timeout, subdomain is down
-
+      logUpdate(pc.red(`[!] Timeout error: ${URL}`));
+      await page.close();
       return;
     }
     logUpdate(pc.green(`[+] ${subdomain} is up`));
-
     if (engagement.subdomainMonitor.screenshotEnabled) {
       await page.screenshot({
         type: "png",
@@ -274,17 +277,6 @@ async function notifySubdomain(subdomain, engagement, page) {
   }
 }
 async function processFile(filePath, engagement, connection) {
-  let browser;
-  try {
-    browser = await puppeteer.launch({
-      headless: true,
-      executablePath: "/usr/bin/chromium-browser", //Delete this in Windows OS
-      args: ["--start-maximized", "--no-sandbox", "--no-zygote"],
-    });
-  } catch (err) {
-    console.log(err);
-    return;
-  }
   try {
     const data = await fs.readFile(filePath, "utf-8");
     const subdomains = data.split("\n").map((subdomain) =>
@@ -293,8 +285,7 @@ async function processFile(filePath, engagement, connection) {
         .replace(/\r?\n|\r/g, " ")
         .replace(/^https?:\/\//, "")
     );
-    const page = await browser.newPage();
-    page.setDefaultTimeout(10 * 60 * 1000); // 10 mins
+
     for (const subdomain of subdomains) {
       if (subdomain) {
         try {
@@ -306,9 +297,10 @@ async function processFile(filePath, engagement, connection) {
             logUpdate(pc.green(`[+] New subdomain found: ${subdomain}`));
             if (!engagement.subdomainMonitor.storeMode) {
               try {
-                await notifySubdomain(subdomain, engagement, page);
+                await notifySubdomain(subdomain, engagement);
               } catch (err) {
                 //Timeout error, skip
+                console.log(err);
               }
             } else {
               logUpdate(pc.yellow(`[+] Storing new domain: ${subdomain}`));
@@ -328,8 +320,6 @@ async function processFile(filePath, engagement, connection) {
     await fs.unlink(filePath);
   } catch (err) {
     throw new Error(`[!] Error reading file: ${err}`);
-  } finally {
-    await browser.close();
   }
 }
 async function checkSubdomains(engagement) {
@@ -356,14 +346,13 @@ async function checkSubdomains(engagement) {
       engagement.subdomainMonitor.subdomainsDirectory
     );
     const txtFiles = files.filter((file) => path.extname(file) == ".txt");
-    logUpdate(
-      pc.yellow(
-        `[i] Reading ${txtFiles.length} subdomains files for ${engagement.name}`
-      )
-    );
-    logUpdate.done();
+
     // Process each .txt file
     for (const file of txtFiles) {
+      logUpdate(
+        pc.yellow(`[i] Reading ${pc.cyan(file)} files for ${engagement.name}`)
+      );
+      logUpdate.done();
       await processFile(
         path.resolve(engagement.subdomainMonitor.subdomainsDirectory, file),
         engagement,
@@ -421,6 +410,12 @@ async function showNeon() {
 }
 async function main() {
   try {
+    browser = await puppeteer.launch({
+      headless: true,
+      executablePath: "/usr/bin/chromium-browser", //Delete this in Windows OS
+      args: ["--start-maximized", "--no-sandbox", "--no-zygote"],
+    });
+
     // Read file again to get the latest changes
     const data = await fs.readFile(
       path.join(__dirname, "config.json"),
@@ -434,6 +429,8 @@ async function main() {
   } catch (err) {
     console.log(pc.red(err));
     exit(1);
+  } finally {
+    await browser.close();
   }
 }
 await showNeon();
@@ -443,11 +440,15 @@ if (!isConfigCronValid) {
   console.log(pc.red(`[!] Invalid cron interval, using default value`));
 }
 const cronExpression = isConfigCronValid ? config.cronInterval : "* * * * *";
-
+let isRuning = false;
 const task = cron.schedule(
   cronExpression,
-  () => {
-    main();
+  async () => {
+    if (!isRuning) {
+      isRuning = true;
+      await main();
+      isRuning = false;
+    }
   },
   {}
 );
