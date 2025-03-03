@@ -203,7 +203,8 @@ async function notifySubdomain(subdomain, engagement) {
         waitUntil: "networkidle2",
       });
     } catch (err) {
-      console.log(pc.red(`[!] Timeout error for ${subdomain}`), err);
+      //Timeout, subdomain is down
+      await page.close();
       await browser.close();
       return;
     }
@@ -299,16 +300,20 @@ async function processFile(filePath, engagement, connection) {
             `SELECT * FROM \`${engagement.engagementCode}\` WHERE subdomain = ?`,
             [subdomain]
           );
-          if (rows.length === 0) {
+          if (rows.length === 0 || !rows) {
             logUpdate(pc.green(`[+] New subdomain found: ${subdomain}`));
             if (!engagement.subdomainMonitor.storeMode) {
-              await notifySubdomain(subdomain, engagement);
+              try {
+                await notifySubdomain(subdomain, engagement);
+              } catch (err) {
+                //Timeout error, skip
+              }
             } else {
               logUpdate(pc.yellow(`[+] Storing new domain: ${subdomain}`));
             }
 
             await connection.query(
-              `INSERT INTO \`${engagement.engagementCode}\` (subdomain) VALUES (?)`,
+              `INSERT IGNORE INTO \`${engagement.engagementCode}\` (subdomain) VALUES (?)`,
               [subdomain]
             );
           }
