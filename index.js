@@ -277,8 +277,8 @@ async function processFile(filePath, engagement, connection) {
   let browser;
   try {
     browser = await puppeteer.launch({
-      headless: true,
-      executablePath: "/usr/bin/chromium-browser", //Delete this in Windows OS
+      headless: false,
+      //executablePath: "/usr/bin/chromium-browser", //Delete this in Windows OS
       args: ["--start-maximized", "--no-sandbox", "--no-zygote"],
     });
   } catch (err) {
@@ -333,8 +333,9 @@ async function processFile(filePath, engagement, connection) {
   }
 }
 async function checkSubdomains(engagement) {
+  var connection;
   try {
-    const connection = await mysql.createConnection({
+    connection = await mysql.createConnection({
       host: process.env.MYSQL_HOST || "localhost",
       port: process.env.MYSQL_PORT || 3306,
       user: process.env.MYSQL_USER || "root",
