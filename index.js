@@ -188,7 +188,13 @@ async function notifySubdomain(subdomain, engagement) {
   const browser = await puppeteer.launch({
     headless: true,
     executablePath: "/usr/bin/chromium-browser", //Delete this in Windows OS
-    args: ["--start-maximized", "--no-sandbox", "--disable-setuid-sandbox"],
+    args: [
+      "--start-maximized",
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--single-process",
+      "--no-zygote",
+    ],
   });
   logUpdate(pc.yellow(`[+] Checking `) + pc.cyan(subdomain));
   const page = await browser.newPage();
@@ -275,8 +281,9 @@ async function notifySubdomain(subdomain, engagement) {
   } catch (err) {
     console.log(err);
   } finally {
-    //Remove the screenshot
+    await page.close();
     await browser.close();
+    //Remove the image
     try {
       await fs.unlink(imgPath);
     } catch (err) {
