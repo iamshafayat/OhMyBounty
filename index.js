@@ -415,7 +415,7 @@ async function main() {
   try {
     browser = await puppeteer.launch({
       headless: true,
-      //executablePath: "/usr/bin/chromium-browser", //Delete this in Windows OS
+      executablePath: "/usr/bin/chromium-browser", //Delete this in Windows OS
       args: ["--start-maximized", "--no-sandbox", "--no-zygote"],
     });
 
