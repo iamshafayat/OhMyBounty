@@ -147,6 +147,9 @@ async function checkCrowdStream(engagement) {
             let message = `<b>🚨 New report in <a href="https://bugcrowd.com${report.engagement_path}">${engagement.name}</a> 🚨 </b>\n\n`;
             message += `<b>${report.title || "<s>Redacted</s>"}</b>\n\n`;
             message += `•<i> Priority:</i> ${report.priority}\n`;
+            message += `•<i> Created:</i> ${new Date(
+              report.created_at
+            ).toLocaleString()}\n`;
             message += `•<i> Disclosed:</i> ${
               report.disclosed || report.accepted_at
             }\n`;
@@ -412,7 +415,7 @@ async function main() {
   try {
     browser = await puppeteer.launch({
       headless: true,
-      executablePath: "/usr/bin/chromium-browser", //Delete this in Windows OS
+      //executablePath: "/usr/bin/chromium-browser", //Delete this in Windows OS
       args: ["--start-maximized", "--no-sandbox", "--no-zygote"],
     });
 

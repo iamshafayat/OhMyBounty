@@ -96,6 +96,7 @@ export const sendDiscordReport = async (engagement, report) => {
       .setDescription(
         `**${report.title || "~~Redacted~~"}**\n\n` +
           `• **Priority:** ${report.priority}\n` +
+          `• **Created:** ${new Date(report.created_at).toLocaleString()}\n` +
           `• **Disclosed:** ${report.disclosed || report.accepted_at}\n` +
           `• **Bounty:** ${report.amount || 0} $\n` +
           `• **Points:** ${report.points || 0}\n` +
